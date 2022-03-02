@@ -1,0 +1,5 @@
+.idea/
+out/
+
+/src/test/
+/web/WEB-INF/config/datasource.properties

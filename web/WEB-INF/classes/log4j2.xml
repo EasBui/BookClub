@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="debug">
+    <Properties>
+        <Property name="LOG_PATTERN">%style{%d{yyyy/MM/dd HH:mm:ss,SSS}}{cyan} %highlight{[%-5p]}{FATAL=bg_red, ERROR=red,
+            INFO=green, DEBUG=blue}  [%C] %style{[%t]}{yellow}- %m%n</Property>
+    </Properties>
+    <Appenders>
+        <Console name="ConsoleLog" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="ConsoleLog" />
+        </Root>
+        <Logger name="jdbc.connection" additivity="false" level="warn">
+            <AppenderRef ref="ConsoleLog"/>
+        </Logger>
+
+        <Logger name="jdbc.audit" additivity="false" level="warn">
+            <AppenderRef ref="ConsoleLog"/>
+        </Logger>
+
+        <Logger name="jdbc.resultset" additivity="false" level="warn">
+            <AppenderRef ref="ConsoleLog"/>
+        </Logger>
+
+        <Logger name="jdbc.sqlonly" additivity="false" level="info">
+            <AppenderRef ref="ConsoleLog"/>
+        </Logger>
+
+        <Logger name="jdbc.resultsettable" additivity="false" level="info">
+            <AppenderRef ref="ConsoleLog"/>
+        </Logger>
+
+        <Logger name="jdbc.sqltiming" additivity="false" level="debug">
+            <AppenderRef ref="ConsoleLog"/>
+        </Logger>
+
+        <Logger name="org.springframework.transaction" additivity="false" level="debug">
+            <AppenderRef ref="ConsoleLog"/>
+        </Logger>
+    </Loggers>
+</Configuration>

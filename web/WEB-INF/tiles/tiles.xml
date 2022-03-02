@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+        "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+
+<tiles-definitions>
+
+    <!-- 기본 레이아웃 -->
+    <definition name="base" template="/WEB-INF/view/layouts/baseLayout.jsp">
+        <put-attribute name="title" value="Simple_CRUD"/>
+        <put-attribute name="navbar" value="/WEB-INF/view/components/navBar.jsp"/>
+        <put-attribute name="header" value="/WEB-INF/view/components/header.jsp"/>
+        <put-attribute name="body" value=""/>
+        <put-attribute name="footer" value="/WEB-INF/view/components/footer.jsp"/>
+    </definition>
+
+    <!-- 대문 -->
+    <definition name="welcome" extends="base">
+        <put-attribute name="header" value="/WEB-INF/view/components/header.jsp"/>
+        <put-attribute name="body" value="/WEB-INF/view/components/welcome/index.jsp"/>
+    </definition>
+
+    <!-- 로그인 화면 -->
+    <definition name="login" extends="base">
+        <put-attribute name="header" value="/WEB-INF/view/components/header.jsp"/>
+        <put-attribute name="body" value="/WEB-INF/view/components/login/login.jsp"/>
+    </definition>
+
+    <!-- 회원가입 화면 -->
+    <definition name="register" extends="base">
+        <put-attribute name="header" value="회원가입 ㄱㄱ"/>
+        <put-attribute name="body" value="/WEB-INF/view/components/register/register.jsp"/>
+    </definition>
+
+    <!-- 게시글 -->
+    <definition name="post.*.*" extends="base">
+        <put-attribute name="body" value="post_body.{1}.{2}"/>
+    </definition>
+        <definition name="post_body.*.*" template="/WEB-INF/view/layouts/post/layout.jsp">
+            <put-attribute name="sideMenu" value="post_body_sideMenu.{1}.{2}"/>
+            <put-attribute name="main" value="post_body_main.{1}.{2}"/>
+        </definition>
+            <definition name="post_body_main.post.*" template="/WEB-INF/view/components/post/post.jsp">
+            </definition>
+            <definition name="post_body_main.form.*" template="/WEB-INF/view/layouts/post/form/layout.jsp">
+                <put-attribute name="action" value="/WEB-INF/view/components/post/form/{1}.jsp"/>
+            </definition>
+            <definition name="post_body_sideMenu.post.*" template="/WEB-INF/view/components/post/page.jsp">
+            </definition>
+            <definition name="post_body_sideMenu.form.*" template="/WEB-INF/view/components/post/form/side.jsp">
+            </definition>
+
+    <!-- 클럽 -->
+    <definition name="club.list" extends="base">
+        <put-attribute name="body" value=""
+    </definition>
+    <definition name="club.*.*" extends="base">
+        <put-attribute name="body" value="club_body.{1}.{2}"/>
+    </definition>
+        <definition name="club_body.facade.*" template="/WEB-INF/view/layouts/club/facade/layout.jsp">
+            <put-attribute name="main" value="/WEB-INF/view/components/club/facade/club.jsp"/>
+        </definition>
+
+
+    <!-- 유저 -->
+    <definition name="user.profile" extends="base">
+        <put-attribute name="body" value="/WEB-INF/view/components/user/userProfile.jsp"/>
+    </definition>
+    <definition name="user.message" extends="base">
+        <put-attribute name="body" value="/WEB-INF/view/components/user/messageBox.jsp"/>
+    </definition>
+    <definition name="user.form.update" extends="base">
+        <put-attribute name="body" value="/WEB-INF/view/components/user/updateForm.jsp"/>
+    </definition>
+
+    <!-- 리뷰 -->
+    <definition name="review.*" extends="base">
+        <put-attribute name="body" value="/WEB-INF/view/components/review/*.jsp"/>
+    </definition>
+</tiles-definitions>

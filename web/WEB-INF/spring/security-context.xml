@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/security
+         http://www.springframework.org/schema/security/spring-security.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd"
+>
+    <context:component-scan base-package="Security"/>
+    <!-- 인터셉터, 들어온 요청에 대해 권한을 가진 요청인지 확인하고 인가.
+         위에서부터 매칭하게 때문에, 넓은 범위의 패턴을 밑에 설정해야함.-->
+    <security:http auto-config="true" use-expressions="true">
+        <security:intercept-url pattern="/users/**" access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')"/>
+        <security:intercept-url pattern="/form/**" access="isAnonymous()"/>
+        <security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')"/>
+
+        <security:intercept-url pattern="/reviews/write" access="hasAnyRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/**" access="permitAll"/>
+
+        <security:form-login
+            username-parameter="account"
+            password-parameter="password"
+            login-processing-url="/login"
+            login-page="/form/login"
+            default-target-url="/"
+        />
+
+        <security:csrf token-repository-ref="tokenRepository"/>
+    </security:http>
+
+    <!-- csrf 토큰을 XSRF-TOKEN 이란 이름의 cookie로 저장하고 X-XSRF-TOKEN 이란 이름의 header에서 읽어옴 -->
+    <bean id="tokenRepository" class="org.springframework.security.web.csrf.CookieCsrfTokenRepository">
+        <property name="cookieHttpOnly" value="false"/>
+    </bean>
+
+    <!-- 인증 절차를 밟고, 인증을 받게 해주는 객체들. -->
+    <security:authentication-manager>
+        <security:authentication-provider ref="customAuthenticationProvider"/>
+        <security:authentication-provider user-service-ref="customUserDetailsService"/>
+    </security:authentication-manager>
+
+    <!-- 비밀번호 암호화 유틸 -->
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+</beans>

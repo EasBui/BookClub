@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper 
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Mapper.Club">
+    <resultMap id="selectClubRM" type="Entity.Club.Club">
+        <id property="ID" column="id"/>
+        <result property="name" column="name"/>
+        <result property="hostID" column="host_id"/>
+        <result property="foundationDate" column="foundation_date"/>
+        <result property="description" column="description"/>
+        <result property="isOpened" column="isOpened"/>
+        <collection property="tags" ofType="java.lang.String" javaType="list">
+            <result column="content"/>
+        </collection>
+    </resultMap>
+    <!-- Club Basic -->
+    <select id="selectAllClubs" resultMap="selectClubRM">
+        SELECT c.`id`
+             , c.`name`
+             , c.`foundation_date`
+             , c.`description`
+             , c.`host_id`
+             , c.`isOpened`
+             , t.`content`
+          FROM (SELECT *
+                FROM `club`) AS c
+          LEFT OUTER
+          JOIN `club_tag` AS t
+            ON c.`id` = t.`club_id`
+    </select>
+    <select id="selectClubWithPattern" resultMap="selectClubRM">
+        SELECT c.`id`
+             , c.`name`
+             , c.`foundation_date`
+             , c.`description`
+             , c.`host_id`
+             , c.`isOpened`
+             , t.`content`
+        FROM (SELECT *
+              FROM `club`
+              WHERE `name` LIKE #{pattern}) AS c
+                 LEFT OUTER
+                     JOIN `club_tag` AS t
+                          ON c.`id` = t.`club_id`
+    </select>
+    <select id="selectClub" parameterType="String" resultMap="selectClubRM">
+        SELECT c.`id`
+             , c.`name`
+             , c.`foundation_date`
+             , c.`description`
+             , c.`host_id`
+             , c.`isOpened`
+             , t.`content`
+        FROM (SELECT *
+              FROM `club`
+              WHERE `name` = #{name}) AS c
+                 LEFT OUTER
+                     JOIN `club_tag` AS t
+                          ON c.`id` = t.`club_id`
+    </select>
+    
+    <insert id="insertClub" parameterType="Entity.Club.Club">
+        INSERT INTO `club`
+               (`name`, `host_id`, `foundation_date`, `isOpened`, `description`)
+        VALUES (#{name}, #{hostID}, #{foundationDate}, #{isOpened}, #{description})
+    </insert>
+
+    <update id="updateClub" parameterType="Entity.Club.Club">
+        UPDATE `club`
+        SET `name` = #{club.name}
+          , `host_id` = #{club.hostId}
+          , `description` = #{club.description}
+          , `isOpened` = #{club.isOpened}
+        WHERE `id` = #{club.ID}
+    </update>
+
+    <delete id="deleteClub" parameterType="String">
+        DELETE
+          FROM `club`
+         WHERE `name` = #{name}
+    </delete>
+
+    <!-- About Club Members -->
+    <resultMap id="selectClubMemberRM" type="Entity.User.User">
+        <id property="ID" column="id"/>
+        <result property="account" column="account"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="profile" column="profile"/>
+        <result property="registerDate" column="register_date"/>
+        <result property="role" column="role"/>
+        <result property="enable" column="enable"/>
+    </resultMap>
+    <select id="selectClubMember" parameterType="String" resultMap="selectClubMemberRM">
+        SELECT u.`id`
+             , u.`account`
+             , u.`password`
+             , u.`name`
+             , u.`profile`
+             , u.`register_date`
+             , u.`role`
+             , u.`enable`
+          FROM (SELECT `id`
+                FROM `club`
+                WHERE `name` = #{clubName}) AS c
+          LEFT OUTER
+          JOIN `club_member` AS cm
+            ON c.`id` = cm.`club_id`
+          LEFT OUTER
+          JOIN `user` AS u
+            ON cm.`user_id` = u.`id`;
+    </select>
+    <insert id="insertClubMember" parameterType="HashMap">
+        INSERT INTO `club_member`
+               (`club_id`, `user_id`)
+        VALUES (#{clubID}, #{userID});
+    </insert>
+    <delete id="deleteClubMember" parameterType="HashMap">
+        DELETE
+          FROM `club_member`
+         WHERE #{clubID} = `club_id`
+           AND #{userID} = `user_id`;
+    </delete>
+
+    <!-- About Club Book - 읽거나 읽을 예정인 책들 -->
+    <select id="selectClubBookStack" parameterType="String" resultType="Dto.Club.ClubBookStackResult">
+        SELECT cbs.`book_code`
+             , cbs.`is_read`
+             , COALESCE(-1, AVG(br.`rate`)) AS `avg_rate`
+          FROM `club_book_stack` AS cbs
+          LEFT OUTER
+          JOIN `book_review` AS br
+            ON cbs.`club_name` = br.`club_name`
+           AND cbs.`book_code` = br.`book_code`
+         WHERE cbs.`club_name` = #{clubName}
+         GROUP BY cbs.`club_name`, cbs.`book_code`
+    </select>
+
+    <insert id="insertClubBookStack" parameterType="HashMap">
+        INSERT INTO `club_book_stack`
+               (`club_name`, `book_code`, `is_read`)
+        VALUES (#{clubName}, #{ISBN} , false);
+    </insert>
+
+    <delete id="deleteClubBookStack" parameterType="HashMap">
+        DELETE
+          FROM `club_book_stack`
+         WHERE `club_name` = #{clubName}
+           AND `book_code` = #{ISBN}
+    </delete>
+
+    <!-- SignUp 가입 신청 -->
+    <insert id="insertClubSignUp" parameterType="HashMap">
+        INSERT `club_sign_up`
+	           (`user_id`, `user_name`, `club_id`, `club_name`)
+        VALUES ((SELECT `id` FROM `user` WHERE `name` = #{userName})
+             , #{userName}
+             , (SELECT `id` FROM `club` WHERE `name` = #{clubName})
+             , #{clubName})
+    </insert>
+
+    <delete id="deleteClubSignUp" parameterType="HashMap">
+        DELETE
+        FROM `club_sign_up`
+        WHERE `user_name` = #{userName}
+          AND `club_name` = #{clubName}
+    </delete>
+
+</mapper>

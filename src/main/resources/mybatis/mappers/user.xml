@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Mapper.User">
+    <resultMap id="UserDetailsRM" type="Security.CustomUserDetails">
+        <id property="ID" column="id"/>
+        <result property="account" column="account"/>
+        <result property="name" column="name"/>
+        <result property="password" column="password"/>
+        <result property="role" column="role"/>
+        <result property="enable" column="enable"/>
+        <collection property="userClubRoles" javaType="list" ofType="Security.UserClubRole">
+            <result property="clubName" column="club_name"/>
+            <result property="isHost" column="is_host"/>
+        </collection>
+    </resultMap>
+    <select id="selectUserDetails" parameterType="String" resultMap="UserDetailsRM">
+        SELECT u.`id`
+             , u.`account`
+             , u.`name`
+             , u.`password`
+             , u.`role`
+             , u.`enable`
+             , c.`name` AS club_name
+             , (c.`host_id` = u.id) AS is_host
+          FROM (SELECT *
+                FROM `user`
+                WHERE `account` = #{account}) AS u
+                   LEFT OUTER
+                       JOIN `club_member` AS cm
+                            ON u.`id` = cm.`user_id`
+                   LEFT OUTER
+                       JOIN `club` AS c
+                            ON cm.`club_id` = c.`id`
+         WHERE u.`enable` = true;
+    </select>
+
+    <resultMap id="UserRM" type="Entity.User.User">
+        <id property="ID" column="id"/>
+        <result property="account" column="account"/>
+        <result property="name" column="name"/>
+        <result property="password" column="password"/>
+        <result property="profile" column="profile"/>
+        <result property="registerDate" column="register_date"/>
+        <result property="role" column="role"/>
+        <result property="enable" column="enable"/>
+    </resultMap>
+    <select id="selectUser" parameterType="String" resultMap="UserRM">
+        SELECT  `id`
+             , `account`
+             , `password`
+             , `name`
+             , `profile`
+             , `register_date`
+             , `role`
+             , `enable`
+          FROM `user`
+        WHERE `enable` = true
+          AND `name` = #{userName};
+    </select>
+
+    <insert id="insertUser" parameterType="Entity.User.User">
+        INSERT INTO `user`
+             ( `account`
+             , `password`
+             , `name`
+             , `profile`
+             , `register_date`
+             , `role`
+             , `enable`)
+        VALUES
+             ( #{account}
+             , #{password}
+             , #{name}
+             , #{profile}
+             , #{registerDate}
+             , #{role}
+             , #{enable});
+    </insert>
+
+    <update id="updateUser" parameterType="Entity.User.User">
+        UPDATE `user`
+           SET `password` = #{password}
+             , `name` = #{name}
+             , `profile` = #{profile}
+         WHERE `ID` = #{id}
+    </update>
+
+    <delete id="deleteUser" parameterType="String">
+        DELETE
+          FROM `user`
+         WHERE `name` = #{userName}
+    </delete>
+
+    <resultMap id="selectMessagesRM" type="Entity.User.Message">
+        <id property="ID" column="id"/>
+        <result property="senderName" column="sender_name"/>
+        <result property="senderSubscribe" column="s_subscribe"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="receiverSubscribe" column="r_subscribe"/>
+        <result property="time" column="time"/>
+        <result property="content" column="content"/>
+    </resultMap>
+    <select id="selectMessages" parameterType="String" resultMap="selectMessagesRM">
+        SELECT t.`message_id` AS `id`
+             , t.`time` AS `time`
+             , t.`content` AS `content`
+             , s.`name` AS `sender_name`
+             , t.`s_subscribe` AS `s_subscribe`
+             , r.`name` AS `receiver_name`
+             , t.`r_subscribe` AS `r_subscribe`
+        FROM (SELECT m.`id` AS `message_id`
+                   , u.`id` AS `subscriber_id`
+                   , u.`name` AS `subscriber_name`
+                   , m.`time`
+                   , m.`content`
+                   , m.`sender_id` AS `sender_id`
+                   , m.`s_subscribe` AS `s_subscribe`
+                   , m.`receiver_id` AS `receiver_id`
+                   , m.`r_subscribe` AS `r_subscribe`
+              FROM (SELECT `id`
+                         , `name`
+                    FROM `user`
+                    WHERE `name` = #{subscriberName}) AS u
+                       LEFT OUTER
+                           JOIN `message` AS m
+                                ON (u.`id` = m.`sender_id` AND m.`s_subscribe`)
+                                    OR
+                                   (u.`id` = m.`receiver_id` AND m.`r_subscribe`)) AS t
+                 LEFT OUTER
+                     JOIN `user` AS s
+                          ON t.`sender_id` = s.`id`
+                 LEFT OUTER
+                     JOIN `user` AS r
+                          ON t.`receiver_id` = r.`id`;
+    </select>
+
+    <insert id="insertMessage" parameterType="Entity.User.Message">
+        INSERT INTO `message`
+               (`time`, `content`, `sender_id`, `s_subscribe`, `receiver_id`, `r_subscribe`)
+        VALUES (#{time}
+             , #{content}
+             , (SELECT `id` FROM `user` WHERE `name` = #{senderName})
+             , #{senderSubscribe}
+             , (SELECT `id` FROM `user` WHERE `name` = #{receiverName})
+             , #{receiverSubscribe});
+    </insert>
+
+    <update id="unsubscribeMessage" parameterType="Entity.User.Message">
+        UPDATE `message`
+        SET `s_subscribe` = CASE
+                                WHEN (SELECT `id` FROM `user` WHERE `name` = #{of}) = sender_id THEN NOT `s_subscribe`
+                                ELSE `s_subscribe`
+            END
+          , `r_subscribe` = CASE
+                                WHEN (SELECT `id` FROM `user` WHERE `name` = #{of}) = receiver_id THEN NOT `r_subscribe`
+                                ELSE `r_subscribe`
+            END
+        WHERE (SELECT `id` FROM `user` WHERE `name` = #{of}) IN ( sender_id, receiver_id )
+          AND (SELECT `id` FROM `user` WHERE `name` = #{with}) IN ( sender_id, receiver_id )
+    </update>
+</mapper>
