@@ -1,9 +1,6 @@
 package Entity.Club;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Singular;
-import lombok.ToString;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -11,6 +8,8 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Club {
     private int ID;
     private String name;

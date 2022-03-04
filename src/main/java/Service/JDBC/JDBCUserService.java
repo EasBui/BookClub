@@ -23,8 +23,8 @@ public class JDBCUserService implements UserService {
 
     /* 사용자 프로필 검색 */
     @Override
-    public UserProfileReq searchUser(String userName) {
-        return new UserProfileReq(userDao.selectUser(userName));
+    public UserProfileRes searchUser(String userName) {
+        return new UserProfileRes(userDao.selectUser(userName));
     }
 
     /* 사용자 등록 */
@@ -101,4 +101,5 @@ public class JDBCUserService implements UserService {
     public boolean unsubscribeConversation(String of, String with) {
         return userDao.unsubscribeConversation(of, with);
     }
+
 }

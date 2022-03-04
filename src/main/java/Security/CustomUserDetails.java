@@ -71,4 +71,18 @@ public class CustomUserDetails implements UserDetails {
         return enable;
     }
 
+    public int roleCheckOn(String clubName) {
+        for(GrantedAuthority ga : this.getAuthorities()) {
+            String auth = ga.getAuthority();
+            if(auth.equals("MEMBER_" + clubName)) {
+                return 1; // MEMBER
+            }
+            if(auth.equals("HOST_" + clubName)) {
+                return 2; // HOST
+            }
+        }
+
+        return 0; //OUTSIDER
+    }
+
 }

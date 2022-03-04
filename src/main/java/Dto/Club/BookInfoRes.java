@@ -15,6 +15,7 @@ public class BookInfoRes {
     private List<String> authors;
     private String publisher;
     private String thumbnail;
+    private String ISBN;
     private String url;
 
     public BookInfoRes(Book book) {
@@ -22,6 +23,7 @@ public class BookInfoRes {
         this.authors = book.getAuthors();
         this.publisher = book.getPublisher();
         this.thumbnail = book.getThumbnail();
+        this.ISBN = book.getISBN();
         this.url = book.getUrl();
     }
 }

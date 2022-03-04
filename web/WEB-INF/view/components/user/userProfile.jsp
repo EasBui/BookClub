@@ -22,8 +22,8 @@
                         <p>${user.registerDate} 가입</p>
                         <p>${user.profile}</p>
                         <c:if test="${isMe}">
-                            <a class="button is-primary">수정하기</a>
-                            <a class="button is-primary">쪽지함으로</a>
+                            <a class="button is-primary" href="/users/form/update">수정하기</a>
+                            <a class="button is-primary" href="/users/messages">쪽지함으로</a>
                         </c:if>
                         <c:if test="${!isMe}">
                             <div id="csrf" style="display: none;" headerName="${_csrf.headerName}" token="${_csrf.token}"></div>
@@ -52,6 +52,18 @@
                             <p class="subTitle is-6">${review.authorName}, ${review.writtenDate}</p>
                             <progress class="progress is-success" value="${review.rate}" max="5"></progress>
                         </div>
+                    </div>
+                </div>
+            </c:forEach>
+            <h1 class="title">가입한 클럽</h1>
+            <c:forEach var="club" items="${clubs}" varStatus="Status">
+                <div class="box">
+                    <div class="content">
+                        <h1>${club.name}</h1>
+                        <p>${club.foundationDate}에 설립</p>
+                        <p>${club.description}</p>
+                        <p>태그 - ${club.tags}</p>
+                        <a class="button is-light" href="/clubs/${club.name}">이동</a>
                     </div>
                 </div>
             </c:forEach>

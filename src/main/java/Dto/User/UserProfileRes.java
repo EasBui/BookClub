@@ -9,12 +9,12 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-public class UserProfileReq {
+public class UserProfileRes {
     private String name;
     private String profile;
     private LocalDateTime registerDate;
 
-    public UserProfileReq(User user) {
+    public UserProfileRes(User user) {
         this.name = user.getName();
         this.profile = user.getProfile();
         this.registerDate = user.getRegisterDate().toLocalDateTime();

@@ -23,8 +23,7 @@
              , c.`host_id`
              , c.`isOpened`
              , t.`content`
-          FROM (SELECT *
-                FROM `club`) AS c
+          FROM `club` AS c
           LEFT OUTER
           JOIN `club_tag` AS t
             ON c.`id` = t.`club_id`
@@ -59,13 +58,38 @@
                      JOIN `club_tag` AS t
                           ON c.`id` = t.`club_id`
     </select>
+    <select id="selectClubWithMember" parameterType="String" resultMap="selectClubRM">
+        SELECT c.`id`
+             , c.`name`
+             , c.`foundation_date`
+             , c.`description`
+             , c.`host_id`
+             , c.`isOpened`
+             , ct.`content`
+        FROM (SELECT *
+                FROM `club_member`
+               WHERE `user_id` = (SELECT `id`
+                                    FROM `user`
+                                   WHERE `name` = #{userName})) as cm
+        LEFT JOIN `club` as c
+                  ON c.`id` = cm.`club_id`
+        LEFT JOIN `club_tag` as ct
+                  ON c.`id` = ct.`club_id`
+    </select>
     
-    <insert id="insertClub" parameterType="Entity.Club.Club">
+    <insert id="insertClub" parameterType="Entity.Club.Club" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO `club`
                (`name`, `host_id`, `foundation_date`, `isOpened`, `description`)
         VALUES (#{name}, #{hostID}, #{foundationDate}, #{isOpened}, #{description})
     </insert>
-
+    <insert id="insertClubTags" parameterType="java.util.Map">
+        INSERT INTO `club_tag`
+            (`club_id`, `content`)
+        VALUES
+        <foreach collection="tags" item="tag" separator="," open="(" close=")">
+            #{clubID}, #{tag.content}
+        </foreach>
+    </insert>
     <update id="updateClub" parameterType="Entity.Club.Club">
         UPDATE `club`
         SET `name` = #{club.name}
@@ -74,7 +98,6 @@
           , `isOpened` = #{club.isOpened}
         WHERE `id` = #{club.ID}
     </update>
-
     <delete id="deleteClub" parameterType="String">
         DELETE
           FROM `club`
@@ -82,7 +105,7 @@
     </delete>
 
     <!-- About Club Members -->
-    <resultMap id="selectClubMemberRM" type="Entity.User.User">
+    <resultMap id="UserRM" type="Entity.User.User">
         <id property="ID" column="id"/>
         <result property="account" column="account"/>
         <result property="password" column="password"/>
@@ -92,7 +115,7 @@
         <result property="role" column="role"/>
         <result property="enable" column="enable"/>
     </resultMap>
-    <select id="selectClubMember" parameterType="String" resultMap="selectClubMemberRM">
+    <select id="selectClubMember" parameterType="String" resultMap="UserRM">
         SELECT u.`id`
              , u.`account`
              , u.`password`
@@ -122,18 +145,29 @@
          WHERE #{clubID} = `club_id`
            AND #{userID} = `user_id`;
     </delete>
+    <select id="selectClubHost" parameterType="String" resultMap="UserRM">
+        SELECT `id`
+             , `account`
+             , `password`
+             , `name`
+             , `profile`
+             , `register_date`
+             , `role`
+             , `enable`
+          FROM `user`
+         WHERE `id` = (SELECT `host_id` FROM `club` WHERE `name` = #{clubName})
+    </select>
 
     <!-- About Club Book - 읽거나 읽을 예정인 책들 -->
     <select id="selectClubBookStack" parameterType="String" resultType="Dto.Club.ClubBookStackResult">
-        SELECT cbs.`book_code`
-             , cbs.`is_read`
-             , COALESCE(-1, AVG(br.`rate`)) AS `avg_rate`
-          FROM `club_book_stack` AS cbs
+        SELECT cbs.`book_code` AS `ISBN`
+             , cbs.`is_read` AS `is_read`
+             , COALESCE(-1, AVG(br.`rate`)) AS `average_rate`
+          FROM (SELECT * FROM `club_book_stack` WHERE `club_name` = #{clubName}) AS cbs
           LEFT OUTER
           JOIN `book_review` AS br
             ON cbs.`club_name` = br.`club_name`
            AND cbs.`book_code` = br.`book_code`
-         WHERE cbs.`club_name` = #{clubName}
          GROUP BY cbs.`club_name`, cbs.`book_code`
     </select>
 
@@ -151,6 +185,20 @@
     </delete>
 
     <!-- SignUp 가입 신청 -->
+    <select id="selectClubSignUps" parameterType="String" resultMap="UserRM">
+        SELECT u.`id`
+             , u.`account`
+             , u.`password`
+             , u.`name`
+             , u.`profile`
+             , u.`register_date`
+             , u.`role`
+             , u.`enable`
+          FROM (SELECT * FROM `club_sign_up` WHERE `club_name` = 'TestClub1') AS csu
+          LEFT OUTER
+          JOIN `user` AS u
+            ON csu.`user_id` = u.`id`;
+    </select>
     <insert id="insertClubSignUp" parameterType="HashMap">
         INSERT `club_sign_up`
 	           (`user_id`, `user_name`, `club_id`, `club_name`)
@@ -159,7 +207,6 @@
              , (SELECT `id` FROM `club` WHERE `name` = #{clubName})
              , #{clubName})
     </insert>
-
     <delete id="deleteClubSignUp" parameterType="HashMap">
         DELETE
         FROM `club_sign_up`

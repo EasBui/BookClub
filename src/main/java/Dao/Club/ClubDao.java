@@ -20,13 +20,8 @@ public interface ClubDao {
     List<User> clubMemberSelect(String clubName);
     boolean clubMemberInsert(String clubName, String userName);
     boolean clubMemberDelete(String clubName, String userName);
+    User clubHostSelect(String clubName);
 
-    List<Review> reviewSelect(String clubName, Book book);
-    List<Review> reviewSelect(String clubName, String authorName);
-    List<Review> reviewSelect(String clubName, String authorName, Book book);
-    boolean reviewInsert(String clubName, Review review);
-    boolean reviewUpdate(String clubName, Review review);
-    boolean reviewDelete(int reviewID);
 
     Schedule clubScheduleSelect(String clubName, int scheduleID);
     boolean clubScheduleInsert(String clubName, Schedule schedule);
@@ -37,6 +32,9 @@ public interface ClubDao {
     boolean clubBookStackInsert(int isbn);
     boolean clubBookStackDelete(int isbn);
 
+    List<User> selectSignUps(String clubName);
     boolean insertSignUp(String userName, String clubName);
     boolean deleteSignUp(String userName, String clubName);
+
+    List<Club> selectClubWithMember(String userName);
 }

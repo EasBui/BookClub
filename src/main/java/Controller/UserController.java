@@ -1,11 +1,13 @@
 package Controller;
 
+import Dto.Club.ClubBasicRes;
 import Dto.Review.ReviewSummaryRes;
 import Dto.User.Conversation;
 import Dto.User.MessageReq;
-import Dto.User.UserProfileReq;
+import Dto.User.UserProfileRes;
 import Dto.User.UserUpdateReq;
 import Security.CustomUserDetails;
+import Service.ClubService;
 import Service.ReviewService;
 import Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ public class UserController {
     UserService userService;
     @Autowired
     ReviewService reviewService;
+    @Autowired
+    ClubService clubService;
 
     /* 자신의 프로필 보기 */
     @RequestMapping(value={"","/"}, method=RequestMethod.GET)
@@ -41,7 +45,7 @@ public class UserController {
     public String userInfoUpdateForm(
             Model model,
             @AuthenticationPrincipal CustomUserDetails user) {
-        UserProfileReq upr = userService.searchUser(user.getName());
+        UserProfileRes upr = userService.searchUser(user.getName());
         model.addAttribute("user", upr);
         return "user.form.update";
     }
@@ -65,10 +69,13 @@ public class UserController {
             return "redirect:/form/login";
         }
         try {
-            UserProfileReq userProfileReq = userService.searchUser(username);
-            model.addAttribute("user", userProfileReq);
+            UserProfileRes userProfileRes = userService.searchUser(username);
+            model.addAttribute("user", userProfileRes);
             model.addAttribute("isMe", username.equals(user.getName()));
-
+            /* 유저가 가입한 클럽 */
+            List<ClubBasicRes> clubBasicRes = clubService.belongingClub(username);
+            model.addAttribute("clubs", clubBasicRes);
+            /* 유저가 쓴 리뷰 */
             List<ReviewSummaryRes> reviewSummaryRes = reviewService.searchReviewSummariesWithAuthor(user.getName());
             model.addAttribute("reviews", reviewSummaryRes);
             return "user.profile";
@@ -79,16 +86,11 @@ public class UserController {
     }
 
     /* 자신의 메세지함 */
-    @RequestMapping(value = {"/{userName}/messages"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/messages"}, method = RequestMethod.GET)
     public String messageBox(
             Model model,
-            @PathVariable String userName,
             @AuthenticationPrincipal CustomUserDetails user) {
-        if(!userName.equals(user.getName())) {
-            return "redirect:/";
-        }
-
-        List<Conversation> conversations = userService.searchConversationsOf(userName);
+        List<Conversation> conversations = userService.searchConversationsOf(user.getName());
         model.addAttribute("conversations", conversations);
 
         return "user.message";

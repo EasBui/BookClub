@@ -37,21 +37,6 @@ public class ReviewController {
     private final int MEMBER = 1;
     private final int HOST = 2;
 
-    private int memberCheck(CustomUserDetails user, String clubName) {
-        for(GrantedAuthority ga : user.getAuthorities()) {
-            String auth = ga.getAuthority();
-            if(auth.equals("MEMBER_" + clubName)) {
-                return MEMBER;
-            }
-            if(auth.equals("HOST_" + clubName)) {
-                return HOST;
-            }
-        }
-
-        return OUTSIDER;
-    }
-
-
     /* Controller */
 
     /* 리뷰 조회 */
@@ -86,7 +71,7 @@ public class ReviewController {
             @AuthenticationPrincipal CustomUserDetails user) {
         HashMap<String, Object> res = new HashMap<>();
         /* 개인 리뷰이거나, 리뷰를 작성하고자 하는 클럽의 회원일 경우에만 작성 가능 */
-        if(clubName == null || (memberCheck(user, clubName) >= MEMBER)) {
+        if(clubName == null || (user.roleCheckOn(clubName) >= MEMBER)) {
             reviewService.addReviewInClub(new ReviewWriteReq(
                     title,
                     content,
@@ -144,7 +129,7 @@ public class ReviewController {
         HashMap<String, Object> res = new HashMap<>();
         /* 작성자 혹은 해당 클럽장만이 삭제 가능 */
         String belongedClubName = reviewService.searchBelongedClubOfReview(ID); /* -> 좋은 설계인가...? */
-        if(authorCheck(user, ID) || (memberCheck(user, belongedClubName) >= HOST)) {
+        if(authorCheck(user, ID) || (user.roleCheckOn(belongedClubName) >= HOST)) {
             reviewService.removeReview(ID);
             res.put("error", false);
             res.put("redirect", "/");

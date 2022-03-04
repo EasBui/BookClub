@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ClubBookRes {
-    private BookInfoRes book;
-    private int club_avg_rate;
+    private BookInfoRes bookInfo;
+    private int clubAvgRate;
     private boolean isRead;
 }

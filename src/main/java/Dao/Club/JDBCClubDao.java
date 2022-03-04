@@ -37,7 +37,11 @@ public class JDBCClubDao implements ClubDao{
 
     @Override
     public boolean clubInsert(Club club) {
-        return false;
+        int id = sqlSession.insert(NAMESPACE + "insertClub", club);
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("tags", club.getTags());
+        params.put("clubID", id);
+        return (sqlSession.insert(NAMESPACE + "insertClubTags", params) == club.getTags().size());
     }
 
     @Override
@@ -52,8 +56,7 @@ public class JDBCClubDao implements ClubDao{
 
     @Override
     public List<User> clubMemberSelect(String clubName) {
-
-        return null;
+        return sqlSession.selectList(NAMESPACE + "selectClubMember", clubName);
     }
 
     @Override
@@ -61,7 +64,7 @@ public class JDBCClubDao implements ClubDao{
         HashMap<String, Object> params = new HashMap<>();
         params.put("clubName", clubName);
         params.put("userName", userName);
-        return false;
+        return (sqlSession.insert(NAMESPACE+ "insertClubMember", params) == 1);
     }
 
     @Override
@@ -70,33 +73,8 @@ public class JDBCClubDao implements ClubDao{
     }
 
     @Override
-    public List<Review> reviewSelect(String clubName, Book book) {
-        return null;
-    }
-
-    @Override
-    public List<Review> reviewSelect(String clubName, String authorName) {
-        return null;
-    }
-
-    @Override
-    public List<Review> reviewSelect(String clubName, String authorName, Book book) {
-        return null;
-    }
-
-    @Override
-    public boolean reviewInsert(String clubName, Review review) {
-        return false;
-    }
-
-    @Override
-    public boolean reviewUpdate(String clubName, Review review) {
-        return false;
-    }
-
-    @Override
-    public boolean reviewDelete(int reviewID) {
-        return false;
+    public User clubHostSelect(String clubName) {
+        return sqlSession.selectOne(NAMESPACE + "selectClubHost", clubName);
     }
 
     @Override
@@ -135,6 +113,11 @@ public class JDBCClubDao implements ClubDao{
     }
 
     @Override
+    public List<User> selectSignUps(String clubName) {
+        return sqlSession.selectList(NAMESPACE + "selectClubSignUps", clubName);
+    }
+
+    @Override
     public boolean insertSignUp(String userName, String clubName) {
         HashMap<String, Object> params = new HashMap<>();
         params.put("userName", userName);
@@ -150,5 +133,10 @@ public class JDBCClubDao implements ClubDao{
         params.put("clubName", clubName);
         sqlSession.insert(NAMESPACE + "deleteClubSignUp", params);
         return true;
+    }
+
+    @Override
+    public List<Club> selectClubWithMember(String userName) {
+        return sqlSession.selectList(NAMESPACE + "selectClubWithMember", userName);
     }
 }

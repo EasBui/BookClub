@@ -30,14 +30,26 @@
                     <a class="navbar-item has-text-grey-lighter" href="#">검색</a>
                 </div>
             </div>
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">도서</a>
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="#">도서 검색</a>
+                    <a class="navbar-item has-text-grey-lighter" href="#">TODO - 도서 랭킹</a>
+                </div>
+            </div>
             <sec:authorize access="isAuthenticated()">
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">클럽</a>
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="#">클럽 검색</a>
+                    <a class="navbar-item" href="#">클럽 만들기</a>
+                </div>
+            </div>
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">나의 메뉴</a>
                 <div class="navbar-dropdown">
-                    <hr class="navbar-divider">
-                    <a class="navbar-item has-text-grey-lighter" href="#">정보 수정</a>
-                    <a class="navbar-item has-text-grey-lighter" href="#">쪽지함</a>
-                    <a class="navbar-item has-text-grey-lighter" href="/users/">나의 프로필</a>
+                    <a class="navbar-item" href="/users/">나의 프로필</a>
+                    <a class="navbar-item" href="/users/messages">쪽지함</a>
                 </div>
             </div>
             </sec:authorize>
@@ -55,6 +67,7 @@
                                 method="POST"
                                 id="logout_form"
                                 name="logout_form">
+                            <sec:authentication property="principal.name"/> 님 환영합니다.
                             <input class="button is-light" id="logout_btn" type="submit" value="LogOut" />
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                         </form>
