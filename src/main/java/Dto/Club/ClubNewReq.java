@@ -25,6 +25,7 @@ public class ClubNewReq {
         List<String> parsedTags = null;
         if(this.tags.contains("#")) {
             // 공백 모두 삭제 후, # 문자 기준으로 나누고, 빈 문자열 삭제
+            // TODO: 오로지 한글, 영어, 숫자, _ 기호만 넣을 수 있게
             parsedTags = Arrays.asList(this.tags.replaceAll(" ","").split("#")).stream()
                                 .filter(t -> t.length() > 0).collect(Collectors.toList());
         }

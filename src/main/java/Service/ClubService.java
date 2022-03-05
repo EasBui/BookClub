@@ -12,7 +12,9 @@ import java.util.List;
 
 public interface ClubService {
     ClubBasicRes searchClub(String clubName);
-    List<ClubBasicRes> listClub();
+    List<ClubBasicRes> listAllClub();
+    List<ClubBasicRes> listClubWithTitle(String query);
+    List<ClubBasicRes> listClubWithTags(String query);
 
     boolean addClub(ClubNewReq club);
 

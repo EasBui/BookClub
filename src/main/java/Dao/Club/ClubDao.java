@@ -11,7 +11,8 @@ import java.util.List;
 
 public interface ClubDao {
     List<Club> clubSelectAll();
-    List<Club> clubSelectWithPattern(String pattern);
+    List<Club> clubSelectWithTitleQuery(String pattern);
+    List<Club> clubSelectWithTags(String tagString);
     Club clubSelect(String name);
     boolean clubInsert(Club club);
     boolean clubDelete(String name);

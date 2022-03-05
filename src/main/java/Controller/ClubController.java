@@ -33,9 +33,23 @@ public class ClubController {
 
     // TODO : 페이지네이션 구현
     /* 전체 클럽의 소개 목록 */
-    @RequestMapping(value = {"","/"}, method= RequestMethod.GET)
-    public String clubList(Model model){
-        model.addAttribute("clubs", clubService.listClub());
+    @RequestMapping(value = {"/list"}, method= RequestMethod.GET)
+    public String clubList(Model model,
+                           @RequestParam(required = false, defaultValue = "") String query,
+                           @RequestParam Boolean isTags){
+        List<ClubBasicRes> clubs;
+        if(query == null || query.length() == 0) {
+            clubs = clubService.listAllClub();
+        }
+        else {
+            if(isTags) {
+                clubs = clubService.listClubWithTags(query);
+            }
+            else {
+                clubs = clubService.listClubWithTitle(query);
+            }
+        }
+        model.addAttribute("clubs", clubs);
         return "club.list";
     }
 

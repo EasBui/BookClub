@@ -40,14 +40,33 @@ public class JDBCClubService implements ClubService {
         return new ClubBasicRes(clubDao.clubSelect(clubName));
     }
 
-    /* 클럽 요약 정보를 모두 반환 */
+    /* 모든 '클럽 요약 정보' 반환 */
     @Override
-    public List<ClubBasicRes> listClub() {
+    public List<ClubBasicRes> listAllClub() {
         return clubDao.clubSelectAll().stream()
                 .filter(c -> c.isOpened()) /* 공개된 클럽만 */
                 .map(c -> new ClubBasicRes(c))
                 .collect(Collectors.toList());
     }
+
+    /* 제목에 특정 단어가 들어간 클럽의 `클럽 요약 정보` 반환 */
+    @Override
+    public List<ClubBasicRes> listClubWithTitle(String query) {
+        return clubDao.clubSelectWithTitleQuery(query).stream()
+                .filter(c -> c.isOpened()) /* 공개된 클럽만 */
+                .map(c -> new ClubBasicRes(c))
+                .collect(Collectors.toList());
+    }
+
+    /* 특정태그를 포함하는 클럽의 `클럽 요약 정보` 반환 */
+    @Override
+    public List<ClubBasicRes> listClubWithTags(String tagString) {
+        return clubDao.clubSelectWithTags(tagString).stream()
+                .filter(c -> c.isOpened()) /* 공개된 클럽만 */
+                .map(c -> new ClubBasicRes(c))
+                .collect(Collectors.toList());
+    }
+
 
     /* 신규 클럽을 리포지터리에 추가 */
     @Override

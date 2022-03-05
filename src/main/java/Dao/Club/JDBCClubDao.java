@@ -10,6 +10,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,9 +28,24 @@ public class JDBCClubDao implements ClubDao{
     }
 
     @Override
-    public List<Club> clubSelectWithPattern(String pattern) {
-        return sqlSession.selectList(NAMESPACE + "selectClubWithPattern", pattern);
+    public List<Club> clubSelectWithTitleQuery(String query) {
+        String match = "[^\uAC00-\uD7A30-9a-zA-Z\\s]";
+        String pattern = "%" + query.replaceAll(match,"") + "%"; /* 한글 숫자 영어 띄어쓰기 빼고 다 삭제 */
+        return sqlSession.selectList(NAMESPACE + "selectClubWithTitleQuery", pattern);
     }
+
+    @Override
+    public List<Club> clubSelectWithTags(String tagString) {
+        String koEngNumWs = "[^\uAC00-\uD7A30-9a-zA-Z\\s]";
+        String moreThanOneWs = "\\s+";
+        String pattern = "%#" + Arrays.asList( tagString.replaceAll(koEngNumWs,"") /* 한글 숫자 영어 공백 빼고 다 삭제 */
+                .replaceAll(moreThanOneWs, "-")
+                .strip().split("-")).stream().sorted(Comparator.naturalOrder())
+                .reduce((a,b) -> a+"#%#"+b).orElse("") + "#%";
+
+        return sqlSession.selectList(NAMESPACE + "selectClubWithTags", pattern);
+    }
+
 
     @Override
     public Club clubSelect(String name) {

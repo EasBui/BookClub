@@ -41,7 +41,7 @@
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">클럽</a>
                 <div class="navbar-dropdown">
-                    <a class="navbar-item" href="#">클럽 검색</a>
+                    <a class="navbar-item" href="/clubs/list?isTags=false">클럽 검색</a>
                     <a class="navbar-item" href="#">클럽 만들기</a>
                 </div>
             </div>

@@ -28,7 +28,7 @@
           JOIN `club_tag` AS t
             ON c.`id` = t.`club_id`
     </select>
-    <select id="selectClubWithPattern" resultMap="selectClubRM">
+    <select id="selectClubWithTitleQuery" parameterType="String" resultMap="selectClubRM">
         SELECT c.`id`
              , c.`name`
              , c.`foundation_date`
@@ -39,9 +39,27 @@
         FROM (SELECT *
               FROM `club`
               WHERE `name` LIKE #{pattern}) AS c
-                 LEFT OUTER
-                     JOIN `club_tag` AS t
-                          ON c.`id` = t.`club_id`
+        LEFT OUTER
+        JOIN `club_tag` AS t
+          ON c.`id` = t.`club_id`
+    </select>
+    <select id="selectClubWithTags" parameterType="String" resultMap="selectClubRM">
+        SELECT *
+          FROM (SELECT c.`id`
+                     , c.`name`
+                     , c.`foundation_date`
+                     , c.`description`
+                     , c.`host_id`
+                     , c.`isOpened`
+                  FROM `club` AS c
+                  LEFT OUTER
+                  JOIN `club_tag` AS ct
+                    ON c.`id` = ct.`club_id`
+                 GROUP BY c.`id`
+                HAVING CONCAT('#', GROUP_CONCAT(ct.`content` ORDER BY ct.`content` ASC SEPARATOR '##'), '#') LIKE #{pattern} ) AS t
+          LEFT OUTER
+          JOIN `club_tag` AS ct
+            ON t.`id` = ct.`club_id`
     </select>
     <select id="selectClub" parameterType="String" resultMap="selectClubRM">
         SELECT c.`id`

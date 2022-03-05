@@ -52,7 +52,7 @@
 
     <!-- 클럽 -->
     <definition name="club.list" extends="base">
-        <put-attribute name="body" value=""/>
+        <put-attribute name="body" value="/WEB-INF/view/components/club/list.jsp"/>
     </definition>
     <definition name="club.form.new" extends="base">
         <put-attribute name="body" value="/WEB-INF/view/components/club/form/new.jsp"/>
