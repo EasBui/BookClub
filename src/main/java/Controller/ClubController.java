@@ -163,4 +163,14 @@ public class ClubController {
         return res;
     }
 
+    // TODO
+    /* 읽은/을 책 목록에 도서 추가 */
+    @ResponseBody
+    @RequestMapping(value = {"/{clubName}/book"}, method=RequestMethod.POST)
+    public HashMap<String, Object> newBookOnStack(
+            @PathVariable String clubName, @RequestBody HashMap<String, Object> data) {
+        return null;
+    }
+
+
 }

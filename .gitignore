@@ -3,3 +3,4 @@ out/
 
 /src/test/
 /web/WEB-INF/config/datasource.properties
+/src/main/java/Dao/Book/kakao.properties
